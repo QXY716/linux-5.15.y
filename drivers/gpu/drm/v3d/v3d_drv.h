@@ -35,6 +35,9 @@ struct v3d_queue_state {
 
 	u64 fence_context;
 	u64 emit_seqno;
+
+	/* Currently active job for this queue */
+	struct v3d_job *active_job;
 };
 
 /* Performance monitor object. The perform lifetime is controlled by userspace
@@ -71,6 +74,12 @@ struct v3d_perfmon {
 	u64 values[];
 };
 
+enum v3d_irq {
+	V3D_CORE_IRQ,
+	V3D_HUB_IRQ,
+	V3D_MAX_IRQS,
+};
+
 struct v3d_dev {
 	struct drm_device drm;
 
@@ -79,6 +88,8 @@ struct v3d_dev {
 	 */
 	int ver;
 	bool single_irq_line;
+
+	int irq[V3D_MAX_IRQS];
 
 	void __iomem *hub_regs;
 	void __iomem *core_regs[3];
@@ -110,11 +121,6 @@ struct v3d_dev {
 	spinlock_t mm_lock;
 
 	struct work_struct overflow_mem_work;
-
-	struct v3d_bin_job *bin_job;
-	struct v3d_render_job *render_job;
-	struct v3d_tfu_job *tfu_job;
-	struct v3d_csd_job *csd_job;
 
 	struct v3d_queue_state queue[V3D_MAX_QUEUES];
 

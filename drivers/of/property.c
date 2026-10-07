@@ -807,10 +807,16 @@ struct device_node *of_graph_get_remote_port(const struct device_node *node)
 }
 EXPORT_SYMBOL(of_graph_get_remote_port);
 
-int of_graph_get_endpoint_count(const struct device_node *np)
+/**
+ * of_graph_get_endpoint_count() - get the number of endpoints in a device node
+ * @np: parent device node containing ports and endpoints
+ *
+ * Return: count of endpoint of this device node
+ */
+unsigned int of_graph_get_endpoint_count(const struct device_node *np)
 {
 	struct device_node *endpoint;
-	int num = 0;
+	unsigned int num = 0;
 
 	for_each_endpoint_of_node(np, endpoint)
 		num++;
@@ -1130,7 +1136,7 @@ static int of_link_to_phandle(struct device_node *con_np,
 	sup_dev = get_dev_from_fwnode(&sup_np->fwnode);
 	if (!sup_dev &&
 	    (of_node_check_flag(sup_np, OF_POPULATED) ||
-	     sup_np->fwnode.flags & FWNODE_FLAG_NOT_DEVICE)) {
+	     fwnode_test_flag(&sup_np->fwnode, FWNODE_FLAG_NOT_DEVICE))) {
 		pr_debug("Not linking %pOFP to %pOFP - No struct device\n",
 			 con_np, sup_np);
 		of_node_put(sup_np);
